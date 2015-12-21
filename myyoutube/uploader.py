@@ -10,16 +10,16 @@ try:
 except ImportError:
     import httplib
 import os
-import httplib2
 import random
 import time
 
+import httplib2
 from apiclient.discovery import build
 from apiclient.errors import HttpError
 from apiclient.http import MediaFileUpload
 from oauth2client.client import flow_from_clientsecrets
 from oauth2client.file import Storage
-from oauth2client.tools import run_flow, argparser
+from oauth2client.tools import run_flow
 
 YOUTUBE_API_SERVICE_NAME = 'youtube'
 YOUTUBE_API_VERSION = 'v3'
@@ -30,9 +30,9 @@ CLIENT_STORAGE_FILE = '~/youtube_storage.json'
 VALID_PRIVACY_STATUSES = ("public", "private", "unlisted")
 RETRIABLE_STATUS_CODES = [500, 502, 503, 504]
 RETRIABLE_EXCEPTIONS = (httplib2.HttpLib2Error, IOError, httplib.NotConnected,
-  httplib.IncompleteRead, httplib.ImproperConnectionState,
-  httplib.CannotSendRequest, httplib.CannotSendHeader,
-  httplib.ResponseNotReady, httplib.BadStatusLine)
+                        httplib.IncompleteRead, httplib.ImproperConnectionState,
+                        httplib.CannotSendRequest, httplib.CannotSendHeader,
+                        httplib.ResponseNotReady, httplib.BadStatusLine)
 
 httplib2.RETRIES = 1
 MAX_RETRIES = 10
@@ -53,41 +53,41 @@ https://developers.google.com/api-client-library/python/guide/aaa_client_secrets
 
 
 def get_authenticated_service(allow_interactive):
-
-
     client_secrets_file = os.path.expanduser(CLIENT_SECRETS_FILE)
     client_storage_file = os.path.expanduser(CLIENT_STORAGE_FILE)
 
-
-    flow = flow_from_clientsecrets(client_secrets_file, scope=YOUTUBE_UPLOAD_SCOPE, message=MISSING_CLIENT_SECRETS_MESSAGE_TEMPLATE.format(client_secrets_file))
+    flow = flow_from_clientsecrets(client_secrets_file, scope=YOUTUBE_UPLOAD_SCOPE,
+                                   message=MISSING_CLIENT_SECRETS_MESSAGE_TEMPLATE.format(client_secrets_file))
     storage = Storage(client_storage_file)
     credentials = storage.get()
-    args = argparser.parse_args()
     if credentials is None or credentials.invalid:
         if not allow_interactive:
             raise Exception("Auth Error Occured. you need client_storage_file={}".format(client_storage_file))
-        credentials = run_flow(flow, storage, args)
+        credentials = run_flow(flow, storage, {})
 
-    return(build(YOUTUBE_API_SERVICE_NAME, YOUTUBE_API_VERSION, http=credentials.authorize(httplib2.Http())))
+    return (build(YOUTUBE_API_SERVICE_NAME, YOUTUBE_API_VERSION, http=credentials.authorize(httplib2.Http())))
 
-def initialize_upload(youtube, file, video_title, video_description, tags_list, categoryId, privacy_status):  #authenticated youtube service, file name as string, video title as string, video description as string, tags as list, category numeric id as string
-    body=dict(
-        snippet=dict(
-            title=video_title,
-            description= video_description,
-            tags=tags_list,
-            categoryId=categoryId
-        ),
-        status=dict(
-            privacyStatus=privacy_status
-        )
+
+def initialize_upload(youtube, file, video_title, video_description, tags_list, categoryId,
+                      privacy_status):  # authenticated youtube service, file name as string, video title as string, video description as string, tags as list, category numeric id as string
+    body = dict(
+            snippet=dict(
+                    title=video_title,
+                    description=video_description,
+                    tags=tags_list,
+                    categoryId=categoryId
+            ),
+            status=dict(
+                    privacyStatus=privacy_status
+            )
     )
-    
+
     insert_request = youtube.videos().insert(
-        part=",".join(body.keys()),
-        body=body,
-        media_body=MediaFileUpload(file, chunksize=-1, resumable=True))
-    return(resumable_upload(insert_request))
+            part=",".join(body.keys()),
+            body=body,
+            media_body=MediaFileUpload(file, chunksize=-1, resumable=True))
+    return (resumable_upload(insert_request))
+
 
 def resumable_upload(insert_request):
     response = None
@@ -99,7 +99,7 @@ def resumable_upload(insert_request):
             status, response = insert_request.next_chunk()
             if 'id' in response:
                 print("Video id {} was successfully uploaded.".format(response['id']))
-                return(response)
+                return (response)
             else:
                 exit("The upload failed with an unexpected response: {}".format(response))
         except HttpError as e:
@@ -109,13 +109,13 @@ def resumable_upload(insert_request):
                 raise
         except RETRIABLE_EXCEPTIONS as e:
             error = "A retriable error occurred: {}".format(e)
-        
+
         if error is not None:
             print(error)
             retry += 1
             if retry > MAX_RETRIES:
                 exit("No longer attempting to retry.")
-        
+
             max_sleep = 2 ** retry
             sleep_seconds = random.random() * max_sleep
             print("Sleeping {} seconds and then retrying...".format(sleep_seconds))
@@ -130,11 +130,11 @@ def upload(file, **kwargs):
     categoryId = "20"
     privacy_status = 'public'
     allow_interactive = False
-    
+
     """Check if the arguments are passed to the function, and if they are then assign them."""
-    
+
     if 'title' in kwargs:
-         video_title = kwargs['title']
+        video_title = kwargs['title']
     if 'description' in kwargs:
         video_description = kwargs['description']
     if 'tags' in kwargs:
@@ -148,15 +148,15 @@ def upload(file, **kwargs):
         allow_interactive = bool(kwargs['allow_interactive'])
 
     youtube = get_authenticated_service(allow_interactive)
-    
+
     # try:
     response = initialize_upload(youtube, file, video_title, video_description, tags_list, categoryId, privacy_status)
-    #print(response['id'])
-    return(response)
+    # print(response['id'])
+    return (response)
     # except HttpError as e:
     #     print("An HTTP error occured {}".format(e))
-        
-#==============================================================================
+
+# ==============================================================================
 # class setup_help(object):
 #     def __init__(self):
 #         print("helping!")
@@ -186,4 +186,4 @@ def upload(file, **kwargs):
 #         print("In order to obtain a list of category Ids for your account, you need to first create an API browser key for your google project")
 #         print("With this browser key, navigate to https://www.googleapis.com/youtube/v3/videoCategories?part=snippet&regionCode={two-character-region}&key={YOUR_API_KEY} ")
 #         
-#==============================================================================
+# ==============================================================================

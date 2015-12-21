@@ -4,7 +4,7 @@ with open('README.rst') as f:
     long_description = f.read()
 
 setup(name='myyoutube',
-      version='0.2',
+      version='0.3',
       description='Upload videos to youtube using OAuth2.0 and the youtube API',
       long_description=long_description,
       classifieres=['Development Status :: 3 - Alpha',
