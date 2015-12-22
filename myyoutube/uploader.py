@@ -19,7 +19,7 @@ from apiclient.errors import HttpError
 from apiclient.http import MediaFileUpload
 from oauth2client.client import flow_from_clientsecrets
 from oauth2client.file import Storage
-from oauth2client.tools import run_flow
+from oauth2client.tools import run_flow, argparser
 
 YOUTUBE_API_SERVICE_NAME = 'youtube'
 YOUTUBE_API_VERSION = 'v3'
@@ -35,7 +35,7 @@ RETRIABLE_EXCEPTIONS = (httplib2.HttpLib2Error, IOError, httplib.NotConnected,
                         httplib.ResponseNotReady, httplib.BadStatusLine)
 
 httplib2.RETRIES = 1
-MAX_RETRIES = 10
+MAX_RETRIES = 2
 MISSING_CLIENT_SECRETS_MESSAGE_TEMPLATE = """
 WARNING: Please configure OAuth 2.0
 
@@ -63,7 +63,7 @@ def get_authenticated_service(allow_interactive):
     if credentials is None or credentials.invalid:
         if not allow_interactive:
             raise Exception("Auth Error Occured. you need client_storage_file={}".format(client_storage_file))
-        credentials = run_flow(flow, storage, {})
+        credentials = run_flow(flow, storage, argparser.parse_args() if allow_interactive else {})
 
     return (build(YOUTUBE_API_SERVICE_NAME, YOUTUBE_API_VERSION, http=credentials.authorize(httplib2.Http())))
 
