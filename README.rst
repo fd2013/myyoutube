@@ -1,5 +1,5 @@
 borrow from great pyoutube
---------
+---------------------------
 Requirements:
 
 * Python 2.7 or higher
@@ -10,12 +10,19 @@ Requirements:
 
 * A populated client_secret.json file in the directory you will be uploading the file from.
 
+* run test.py
+
+* oauth authentication with web browser,then it will create ``~/youtube_storage.json``
+
+when you delpoy, copy ``~/youtube_storage.json`` and ``~/client_secret.json`` to server
+
 To install::
 
 >>> pip install myyoutube
 
 
 Sample usage::
+
 
 >>>from myyoutube import uploader
 >>>uploader.upload("File.mp4", title="Video Title", description="Video Description", tags=["video", "tags"], categoryId="20",privacy_status="Public")
