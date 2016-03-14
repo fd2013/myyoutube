@@ -25,7 +25,7 @@ Sample usage::
 
 
 >>>from myyoutube import uploader
->>>uploader.upload("File.mp4", title="Video Title", description="Video Description", tags=["video", "tags"], categoryId="20",privacy_status="Public")
+>>>uploader.upload("File.mp4", title="Video Title", description="Video Description", tags=["video", "tags"], categoryId="20",privacy_status="Public",allow_interactive=True)
 
 Returns a dictionary response containing information about the uploaded video.
 
@@ -44,3 +44,8 @@ List of optional arguments and their uses:
 * categoryId: string or an int, the numerical category id that categorizes the youtube video accordingly. These category ids can be obtained from the youtube web API via the link https://www.googleapis.com/youtube/v3/videoCategories?part=snippet&regionCode={two-character-region}&key={YOUR_API_KEY}. You will need to enable a browser API key as part of your project to discover different categoryId's.
 
 * privacy_status: string, must be one of "public", "unlisted", or "private". Defaults to "public".
+
+* allow_interactive: boolean.
+
+    * If True, ``~/youtube_storage.json`` and ``~/client_secret.json`` must be valid (else method will fail).
+    * If False, will process oauth, then create ``~/youtube_storage.json``.
