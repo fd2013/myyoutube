@@ -47,5 +47,5 @@ List of optional arguments and their uses:
 
 * allow_interactive: boolean.
 
-    * If True, ``~/youtube_storage.json`` and ``~/client_secret.json`` must be valid (else method will fail).
-    * If False, will process oauth, then create ``~/youtube_storage.json``.
+    * If True, will process oauth, then create ``~/youtube_storage.json``.
+    * If False, ``~/youtube_storage.json`` and ``~/client_secret.json`` must be valid (else method will fail).
